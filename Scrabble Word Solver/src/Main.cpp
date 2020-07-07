@@ -75,13 +75,34 @@ std::vector<std::string> getDictionary(const std::string filepath) {
 	inFile.open(filepath);
 	std::vector<std::string> words;
 	std::string currentWord;
-	if (inFile.is_open()) {
-		for (std::string word; std::getline(inFile, word);) {
-			words.push_back(word);
+	while (true) {
+		inFile.open(filePath);
+		if (inFile.is_open()) {
+			for (std::string word; std::getline(inFile, word);) {
+				words.push_back(word);
+			}
+			break;
 		}
-	}
-	else {
-		std::cout << "Could not find dictionary file.";
+		else {
+			std::cout << "Cannot open dictionary file. Standard dictionary file is 'words_alpha.txt'" << std::endl;
+			char answer;
+			while (true) {
+				std::cout << "Would you like to specify a dictionary file? y/n" << std::endl;
+				std::cin >> answer;
+				switch (answer) {
+				case 'y': case 'Y':
+					std::cout << "What is the name of the dictionary file?" << std::endl;
+					std::cin >> filePath;
+					break;
+				case 'n': case 'N':
+					exit(1);
+				default:
+					std::cout << "Invalid Selection. Please try Again." << std::endl << std::endl;
+					break;
+				}
+				break;
+			}
+		}
 	}
 	inFile.close();
 	return words;
