@@ -22,8 +22,8 @@ std::vector<char> getRackLetters();
 int getWildCount(const std::vector<char>& letters);
 void removeWildFromRack(std::vector<char>& rack);
 std::vector<std::string> getDictionary(const std::string filepath);
-bool canBeSpelled(const std::string& word, const availableRack& rack);
-std::vector<std::string> generatePossibleWords(const std::vector<std::string>& dictionary, const availableRack& rack, const unsigned int lowestLetterCount, const unsigned int highestLetterCount);
+bool canBeSpelled(const std::string& word, availableRack rack);
+std::vector<std::string> generatePossibleWords(const std::vector<std::string>& dictionary,  availableRack rack, const unsigned int lowestLetterCount, const unsigned int highestLetterCount);
 void printString(const std::string& outString);
 void printToFile(const std::vector<std::string>& stringVector);
 void copyEachToClipboard(const std::vector<std::string>& listToCopy);
@@ -37,7 +37,6 @@ struct availableRack
 {
 	std::vector<char> letters;
 	int numberOfWild = 0;
-
 };
 
 
@@ -46,6 +45,7 @@ std::vector<char> getRackLetters() {
 	std::vector<char> letters;
 	std::string s_letters;
 	std::cin >> s_letters;
+	std::transform(s_letters.begin(), s_letters.end(), s_letters.begin(), std::tolower);
 	for (unsigned int i = 0; i < s_letters.size(); i++)
 		letters.push_back(s_letters[i]);
 	return letters;
@@ -70,9 +70,10 @@ void removeWildFromRack(std::vector<char>& rack) {
 	}
 }
 
+
 std::vector<std::string> getDictionary(const std::string filepath) {
+	std::string filePath = filepath;
 	std::ifstream inFile;
-	inFile.open(filepath);
 	std::vector<std::string> words;
 	std::string currentWord;
 	while (true) {
@@ -109,18 +110,18 @@ std::vector<std::string> getDictionary(const std::string filepath) {
 }
 
 
-bool canBeSpelled(const std::string &word, const availableRack &rack) {
-	std::vector<char> copiedLetters = rack.letters;
+bool canBeSpelled(const std::string &word, availableRack rack) {
+	//std::vector<char> copiedLetters = rack.letters;
 	int numberOfLettersUsed = 0;
 
 	/*Looks at each letter in the word and determines if it finds it in the letter bank
 	If it does, it will remove that letter from the bank, and add one to the letters used count*/
-	for (unsigned int currentPositionInWord = 0; currentPositionInWord < word.size(); currentPositionInWord++) {
-		for (unsigned int currentPossibleLetter = 0; currentPossibleLetter < copiedLetters.size(); currentPossibleLetter++) {
-			if (word[currentPositionInWord] == copiedLetters[currentPossibleLetter]) {
+	for (unsigned int letterInWord = 0; letterInWord < word.size(); letterInWord++) {
+		for (unsigned int LetterInRack = 0; LetterInRack < rack.letters.size(); LetterInRack++) {
+			if (word[letterInWord] == rack.letters[LetterInRack]) {
 				numberOfLettersUsed++;
-				copiedLetters.erase(copiedLetters.begin() + currentPossibleLetter); //Erases currentPossibleLetter from copiedLetters
-				currentPossibleLetter = copiedLetters.size();
+				rack.letters.erase(rack.letters.begin() + LetterInRack); //Erases currentPossibleLetter from copiedLetters
+				LetterInRack = rack.letters.size(); //Sets couter to the end of the rack
 			}
 		}
 	}
@@ -132,11 +133,11 @@ bool canBeSpelled(const std::string &word, const availableRack &rack) {
 	if (numberOfNeededLetters <= rack.numberOfWild)
 		numberOfLettersUsed += numberOfNeededLetters;
 
-	return (numberOfLettersUsed == word.length()) ? true : false;
+	return numberOfLettersUsed == word.length();
 }
 
 
-std::vector<std::string> generatePossibleWords(const std::vector<std::string> &dictionary, const availableRack &rack ,const unsigned int lowestLetterCount, const unsigned int highestLetterCount) {
+std::vector<std::string> generatePossibleWords(const std::vector<std::string> &dictionary, availableRack rack ,const unsigned int lowestLetterCount, const unsigned int highestLetterCount) {
 	std::vector<std::string> finalWords;
 	for (unsigned int i = 0; i < dictionary.size(); i++) {
 		std::string workingWord = dictionary.at(i);
