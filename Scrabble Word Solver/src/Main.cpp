@@ -6,6 +6,7 @@
 #include <set>
 #include <tuple>
 #include "Clipboard.h"
+#include "cxxopts.hpp"
 #include <Windows.h>
 
 
@@ -45,7 +46,7 @@ std::vector<char> getRackLetters() {
 	std::vector<char> letters;
 	std::string s_letters;
 	std::cin >> s_letters;
-	std::transform(s_letters.begin(), s_letters.end(), s_letters.begin(), std::tolower);
+	std::transform(s_letters.begin(), s_letters.end(), s_letters.begin(), ::tolower);
 	for (unsigned int i = 0; i < s_letters.size(); i++)
 		letters.push_back(s_letters[i]);
 	return letters;
@@ -187,9 +188,26 @@ void copyEachToClipboard(const std::vector<std::string> &listToCopy) {
 }
 
 
-int main() {
+int main(int argc, char** argv) {
+	// Command line option parsing
+	cxxopts::Options options(argv[0], "Given a set of letters find all of the possible words that can be made with it.");
+
+	options.add_options()
+		("h,help", "Print program usage")
+		("f,file", "Input file", cxxopts::value<std::string>()->default_value("words_alpha.txt"));
+
+	options.set_width(150);
+
+	auto result = options.parse(argc, argv);
+
+	if (result.count("help")) {
+		std::cout << options.help() << std::endl;
+		return 0;
+	}
+
 	availableRack rack;
-	std::vector<std::string> acceptedDictionary = getDictionary("words_alpha.txt");
+	std::string file = result["f"].as<std::string>();
+	std::vector<std::string> acceptedDictionary = getDictionary(file);
 	//std::vector<std::string> acceptedDictionary = getDictionary("twl.txt");
 	rack.letters = getRackLetters();
 	rack.numberOfWild = getWildCount(rack.letters);
