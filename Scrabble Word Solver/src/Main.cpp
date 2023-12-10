@@ -217,6 +217,12 @@ int main(int argc, char** argv) {
 	std::cin >> minimumLetterCount;
 	std::cout << "Maximum number of letters for a word: ";
 	std::cin >> maximumLetterCount;
+
+	if (minimumLetterCount > maximumLetterCount) {
+		std::swap(minimumLetterCount, maximumLetterCount);
+	}
+
+
 	std::vector<std::string> possibleWords = generatePossibleWords(acceptedDictionary, rack, minimumLetterCount, maximumLetterCount);
 	std::stable_sort(possibleWords.begin(), possibleWords.end(), sortDecendingAlphbetical());
 	std::for_each(possibleWords.begin(), possibleWords.end(), &printString);
